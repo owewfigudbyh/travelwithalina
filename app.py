@@ -534,10 +534,9 @@ def _parse_tv_hotels(hotels_raw) -> List[dict]:
     result.sort(key=lambda x: x['price_eur'])
     return result
 
-# Настройка логирования
-log_dir = 'logs'
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
+# ═══════════════════════════════════════════════════════════════
+# ЛОГИРОВАНИЕ (совместимо с Vercel и локальным запуском)
+# ═══════════════════════════════════════════════════════════════
 
 import sys as _sys
 
@@ -547,6 +546,59 @@ if hasattr(_sys.stdout, 'reconfigure'):
         _sys.stdout.reconfigure(encoding='utf-8')
     except Exception:
         pass
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(_sys.stdout)  # Всегда пишем в stdout
+    ]
+)
+
+# Дополнительно: если НЕ на Vercel, добавляем файловый handler
+if not os.environ.get('VERCEL') and not os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    try:
+        log_dir = 'logs'
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
+        
+        file_handler = logging.FileHandler(
+            os.path.join(log_dir, 'facebook_bot.log'),
+            encoding='utf-8'
+        )
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(file_handler)
+        logging.info("✅ Логирование в файл включено")
+    except Exception as e:
+        # Игнорируем ошибки создания файла на read-only системах
+        logging.info(f"⚠️ Логирование только в консоль: {e}")
+else:
+    # На Vercel используем /tmp (единственная доступная для записи папка)
+    try:
+        log_dir = '/tmp/logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        file_handler = logging.FileHandler(
+            os.path.join(log_dir, 'facebook_bot.log'),
+            encoding='utf-8'
+        )
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(file_handler)
+        logging.info("✅ Логирование в /tmp/logs (Vercel)")
+    except Exception as e:
+        logging.info(f"⚠️ Логирование только в консоль: {e}")
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(file_handler)
+        logging.info("✅ Логирование в файл включено")
+    except Exception as e:
+        # Игнорируем ошибки создания файла на read-only системах
+        logging.info(f"⚠️ Логирование только в консоль (файл недоступен): {e}")
+
+logging.info("🚀 Logging initialized")
+
 
 import io as _io
 _stream = _io.TextIOWrapper(_sys.stdout.buffer, encoding='utf-8', errors='replace') if hasattr(_sys.stdout, 'buffer') else _sys.stdout
