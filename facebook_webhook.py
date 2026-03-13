@@ -10,22 +10,38 @@ import json
 import logging
 import asyncio
 import requests
+import sys
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
-# Импортируем бота
-from facebook_bot import bot, handle_message
-
 load_dotenv()
 
-# Настройка логирования
+# Импортируем бота из app.py
+try:
+    from app import bot, handle_message
+except ImportError:
+    # Для тестирования создаем заглушку
+    bot = None
+    handle_message = None
+    print("⚠️ WARNING: Could not import bot from app.py")
+
+# Настройка логирования для Vercel (только консоль или /tmp)
+# На Vercel файловая система read-only, поэтому логи только в stdout или /tmp
+log_handlers = [logging.StreamHandler(sys.stdout)]
+
+# Попытка добавить файловый лог в /tmp (работает на Vercel)
+try:
+    tmp_log_path = '/tmp/facebook_webhook.log'
+    log_handlers.append(logging.FileHandler(tmp_log_path, encoding='utf-8'))
+    print(f"✓ Логи будут записываться в: {tmp_log_path}")
+except Exception as e:
+    print(f"⚠ Файловые логи недоступны: {e}. Используем только консоль.")
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/facebook_webhook.log', encoding='utf-8'),
-        logging.StreamHandler()
-    ]
+    handlers=log_handlers,
+    force=True
 )
 logger = logging.getLogger(__name__)
 
@@ -96,18 +112,35 @@ def home():
 @app.route('/webhook', methods=['GET'])
 def verify_webhook():
     """Верификация webhook для Facebook"""
-
+    
+    # Получаем параметры из query string
     mode = request.args.get('hub.mode')
     token = request.args.get('hub.verify_token')
     challenge = request.args.get('hub.challenge')
-
-    logger.info(f"Webhook verification: mode={mode}, token={token}")
-
+    
+    # Отладочная информация
+    print("=" * 60)
+    print("VERIFY WEBHOOK REQUEST!")
+    print(f"Full URL: {request.url}")
+    print(f"Query String: {request.query_string.decode()}")
+    print(f"All Args: {dict(request.args)}")
+    print(f"Mode: {mode}")
+    print(f"Token: {token}")
+    print(f"Challenge: {challenge}")
+    print(f"Expected Token: {FACEBOOK_VERIFY_TOKEN}")
+    print("=" * 60)
+    
+    logger.info(f"Webhook verification: mode={mode}, token={token}, challenge={challenge}")
+    
+    # Проверяем параметры
     if mode == 'subscribe' and token == FACEBOOK_VERIFY_TOKEN:
-        logger.info("Webhook verified successfully!")
-        return challenge, 200
+        logger.info("✓ Webhook verified successfully!")
+        print(">>> VERIFICATION SUCCESS!")
+        # ВАЖНО: возвращаем только challenge как строку с кодом 200
+        return str(challenge), 200
     else:
-        logger.error("Webhook verification failed!")
+        logger.error(f"✗ Webhook verification failed! Expected token: {FACEBOOK_VERIFY_TOKEN}, got: {token}")
+        print(">>> VERIFICATION FAILED!")
         return 'Forbidden', 403
 
 
@@ -116,6 +149,13 @@ def handle_webhook():
     """Обработка входящих сообщений от Facebook"""
 
     data = request.get_json()
+    
+    # Логирование в консоль (работает на Vercel)
+    print("=" * 60)
+    print("WEBHOOK POST REQUEST RECEIVED")
+    print(f"Data: {json.dumps(data, ensure_ascii=False)[:500]}")
+    print("=" * 60)
+    
     logger.info(f"Webhook received: {json.dumps(data, ensure_ascii=False)[:500]}")
 
     if data.get('object') == 'page':
