@@ -539,6 +539,7 @@ def _parse_tv_hotels(hotels_raw) -> List[dict]:
 # ═══════════════════════════════════════════════════════════════
 
 import sys as _sys
+import io as _io
 
 # Консольный хэндлер с правильной кодировкой для Windows
 if hasattr(_sys.stdout, 'reconfigure'):
@@ -547,72 +548,18 @@ if hasattr(_sys.stdout, 'reconfigure'):
     except Exception:
         pass
 
-# Настройка логирования
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(_sys.stdout)  # Всегда пишем в stdout
-    ]
-)
-
-# Дополнительно: если НЕ на Vercel, добавляем файловый handler
-if not os.environ.get('VERCEL') and not os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
-    try:
-        log_dir = 'logs'
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-        
-        file_handler = logging.FileHandler(
-            os.path.join(log_dir, 'facebook_bot.log'),
-            encoding='utf-8'
-        )
-        file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logging.getLogger().addHandler(file_handler)
-        logging.info("✅ Логирование в файл включено")
-    except Exception as e:
-        # Игнорируем ошибки создания файла на read-only системах
-        logging.info(f"⚠️ Логирование только в консоль: {e}")
-else:
-    # На Vercel используем /tmp (единственная доступная для записи папка)
-    try:
-        log_dir = '/tmp/logs'
-        os.makedirs(log_dir, exist_ok=True)
-        
-        file_handler = logging.FileHandler(
-            os.path.join(log_dir, 'facebook_bot.log'),
-            encoding='utf-8'
-        )
-        file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logging.getLogger().addHandler(file_handler)
-        logging.info("✅ Логирование в /tmp/logs (Vercel)")
-    except Exception as e:
-        logging.info(f"⚠️ Логирование только в консоль: {e}")
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logging.getLogger().addHandler(file_handler)
-        logging.info("✅ Логирование в файл включено")
-    except Exception as e:
-        # Игнорируем ошибки создания файла на read-only системах
-        logging.info(f"⚠️ Логирование только в консоль (файл недоступен): {e}")
-
-logging.info("🚀 Logging initialized")
-
-
-import io as _io
+# Настройка потока вывода с UTF-8
 _stream = _io.TextIOWrapper(_sys.stdout.buffer, encoding='utf-8', errors='replace') if hasattr(_sys.stdout, 'buffer') else _sys.stdout
 _console_handler = logging.StreamHandler(_stream)
 _console_handler.setLevel(logging.INFO)
 _console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
-# Настройка базового логирования (только консоль)
+# Настройка базового логирования (всегда в консоль)
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        _console_handler,  # Только консоль в basicConfig
-    ]
+    handlers=[_console_handler],
+    force=True
 )
 
 logger = logging.getLogger(__name__)
@@ -648,7 +595,7 @@ else:
         _file_handler.setLevel(logging.INFO)
         _file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logging.getLogger().addHandler(_file_handler)
-        logger.info("✅ Логирование в ./logs")
+        logger.info("✅ Логирование в файл logs/facebook_bot.log")
     except Exception as e:
         logger.info(f"⚠️ Файловое логирование недоступно: {e}")
 
