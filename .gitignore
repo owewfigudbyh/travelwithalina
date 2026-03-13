@@ -1,0 +1,89 @@
+# ═══════════════════════════════════════════════════════════════
+# Travel With Alina - Facebook Bot
+# ═══════════════════════════════════════════════════════════════
+
+# Логи и временные файлы
+*.log
+*.pid
+bot.log
+ngrok.log
+cloudflare.log
+serveo.log
+lt.log
+nohup.out
+
+# URL файлы
+webhook_url.txt
+ngrok_url.txt
+tunnel_url.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.bak
+
+# Секретные данные
+.env
+*.key
+*.pem
+
+# Тестовые файлы
+test_*.py
+*_test.py
+tmp_*.py
+
+# Документация (оставляем только основную)
+*_GUIDE.txt
+*_SUMMARY.md
+*_CHANGELOG.md
+*_EXPLAINED.md
+*_UPDATE.md
+*_DONE.md
+*_EXAMPLES.md
+*_COMMANDS.md
+QUICK*.md
+FIX*.md
+HISTORY*.md
+INTEGRATION*.md
+MULTILANGUAGE*.md
+READY*.md
+SMART*.md
+TELEGRAM*.md
+BOT_*.md
+MANAGER_*.md
+CHANGES_*.md
+FINAL_*.md
+
+# RAR архивы
+*.rar
+
+# Изображения (если не нужны в репозитории)
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# JSON с данными отелей (если большие)
+*_hotels_*.json
+tenerife_*.json
+

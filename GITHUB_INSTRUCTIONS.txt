@@ -1,0 +1,109 @@
+╔═══════════════════════════════════════════════════════════════╗
+║          КАК ЗАЛИТЬ ПРОЕКТ НА GITHUB - ПОШАГОВАЯ ИНСТРУКЦИЯ  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📋 ПОДГОТОВКА (выполнено):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Удалены все .sh файлы
+✅ Создан .gitignore
+✅ Создан README.md
+✅ Создан .env.example
+
+═══════════════════════════════════════════════════════════════
+
+🚀 БЫСТРАЯ ЗАЛИВКА НА GITHUB:
+
+1️⃣ СОЗДАЙТЕ РЕПОЗИТОРИЙ НА GITHUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   - Откройте: https://github.com/new
+   - Название: travel-with-alina-bot
+   - Описание: AI-powered Facebook bot for tour selection
+   - Visibility: Private (рекомендуется, т.к. есть API ключи)
+   - НЕ создавайте README (уже есть)
+   - Нажмите "Create repository"
+
+2️⃣ ОТКРОЙТЕ ТЕРМИНАЛ В ПАПКЕ ПРОЕКТА
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   cd C:\Users\Kamron\PycharmProjects\tour\TourVisor
+
+3️⃣ ВЫПОЛНИТЕ КОМАНДЫ (СКОПИРУЙТЕ ВСЁ СРАЗУ):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+git init
+git add .
+git commit -m "Initial commit: Travel With Alina Bot - AI-powered tour selection"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/travel-with-alina-bot.git
+git push -u origin main
+
+⚠️  ЗАМЕНИТЕ YOUR_USERNAME на ваш GitHub username!
+
+═══════════════════════════════════════════════════════════════
+
+📝 АЛЬТЕРНАТИВА (если git уже инициализирован):
+
+git add .
+git commit -m "Update: Production-ready bot with GPT-5.1"
+git push
+
+═══════════════════════════════════════════════════════════════
+
+🔒 ВАЖНО! ПРОВЕРЬТЕ .gitignore
+
+Убедитесь что .env НЕ попадёт в репозиторий:
+
+git status
+
+Если видите .env в списке файлов - добавьте в .gitignore:
+echo ".env" >> .gitignore
+git rm --cached .env
+git commit -m "Remove .env from git"
+
+═══════════════════════════════════════════════════════════════
+
+📦 ЧТО БУДЕТ ЗАЛИТО:
+
+✅ app.py (основной файл бота)
+✅ tour_selector.py (подбор туров)
+✅ flightpowers_parser.py (парсер рейсов)
+✅ travelmarket_parser.py (парсер отелей)
+✅ requirements.txt (зависимости)
+✅ README.md (документация)
+✅ .env.example (пример конфигурации)
+✅ .gitignore (исключения)
+
+❌ НЕ будет залито:
+❌ .env (секретные ключи)
+❌ *.log (логи)
+❌ __pycache__/ (кэш Python)
+❌ *.sh (bash скрипты)
+❌ test_*.py (тесты)
+❌ *.md файлы с документацией разработки
+
+═══════════════════════════════════════════════════════════════
+
+🎯 ПОСЛЕ ЗАЛИВКИ:
+
+1. Откройте: https://github.com/YOUR_USERNAME/travel-with-alina-bot
+2. Проверьте что всё загрузилось
+3. Добавьте описание в Settings → About:
+   "AI-powered Facebook Messenger bot for automatic tour selection"
+4. Добавьте Topics: python, facebook-bot, openai, gpt, chatbot
+
+═══════════════════════════════════════════════════════════════
+
+🔄 ОБНОВЛЕНИЕ РЕПОЗИТОРИЯ В БУДУЩЕМ:
+
+git add .
+git commit -m "Update: описание изменений"
+git push
+
+═══════════════════════════════════════════════════════════════
+
+✅ ГОТОВО! Проект на GitHub!
+
+Теперь можно:
+- Клонировать на сервер: git clone https://github.com/...
+- Работать командой через Pull Requests
+- Версионировать изменения
+
