@@ -606,17 +606,53 @@ _console_handler = logging.StreamHandler(_stream)
 _console_handler.setLevel(logging.INFO)
 _console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
+# Настройка базового логирования (только консоль)
 logging.basicConfig(
-    level=logging.WARNING,  # Изменено с INFO на WARNING - меньше логов
+    level=logging.WARNING,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/facebook_bot.log', encoding='utf-8'),
-        _console_handler,
+        _console_handler,  # Только консоль в basicConfig
     ]
 )
+
 logger = logging.getLogger(__name__)
-# Включаем INFO только для нашего модуля
 logger.setLevel(logging.INFO)
+
+# Добавляем файловый handler в зависимости от окружения
+if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+    # На Vercel/AWS Lambda используем /tmp (единственная доступная для записи папка)
+    try:
+        log_dir = '/tmp/logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        _file_handler = logging.FileHandler(
+            os.path.join(log_dir, 'facebook_bot.log'),
+            encoding='utf-8'
+        )
+        _file_handler.setLevel(logging.INFO)
+        _file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(_file_handler)
+        logger.info("✅ Логирование в /tmp/logs (Vercel/Lambda)")
+    except Exception as e:
+        logger.info(f"⚠️ Файловое логирование недоступно: {e}")
+else:
+    # Локально используем ./logs
+    try:
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
+        
+        _file_handler = logging.FileHandler(
+            os.path.join(log_dir, 'facebook_bot.log'),
+            encoding='utf-8'
+        )
+        _file_handler.setLevel(logging.INFO)
+        _file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(_file_handler)
+        logger.info("✅ Логирование в ./logs")
+    except Exception as e:
+        logger.info(f"⚠️ Файловое логирование недоступно: {e}")
+
+logger.info("🚀 Logging initialized")
 
 # API ключи
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
